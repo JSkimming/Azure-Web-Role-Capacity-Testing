@@ -5,7 +5,7 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
-namespace MvcWebRole1
+namespace Azure.WebRole.CapacityTesting
 {
     public class WebRole : RoleEntryPoint
     {
