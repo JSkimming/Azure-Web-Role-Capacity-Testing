@@ -1,5 +1,6 @@
 using System.Web.Mvc;
 using Azure.WebRole.CapacityTesting.AsyncCtp;
+using Azure.WebRole.CapacityTesting.Services;
 
 [assembly: WebActivator.PreApplicationStartMethod(typeof(Azure.WebRole.CapacityTesting.App_Start.NinjectMVC3), "Start")]
 [assembly: WebActivator.ApplicationShutdownMethodAttribute(typeof(Azure.WebRole.CapacityTesting.App_Start.NinjectMVC3), "Stop")]
@@ -57,6 +58,10 @@ namespace Azure.WebRole.CapacityTesting.App_Start
             kernel.Bind<IActionInvoker>()
                 .To<CoreControllerActionInvoker>()
                 .InRequestScope();
+
+            kernel.Bind<ITableStorageWriterService>()
+                .To<TableStorageWriterService>()
+                .InSingletonScope();
         }        
     }
 }

@@ -120,6 +120,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Services\ITableStorageWriterService.cs" />
+    <Compile Include="Services\TableStorageWriterService.cs" />
     <Compile Include="WebRole.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -218,10 +220,9 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Views\Home\AsyncCtp.cshtml" />
+    <Content Include="Views\Home\AsyncTpl.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Views\Home\Async.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\Settings.settings">
