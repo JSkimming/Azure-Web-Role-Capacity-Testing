@@ -22,7 +22,7 @@ namespace Azure.WebRole.CapacityTesting.HttpHandlers
         internal static void WriteResultsToResponse(HttpResponse httpResponse, CapacityTestData data)
         {
             httpResponse.ContentType = "text/plain";
-            httpResponse.Write(string.Format("Sync result {0}", data.ElapsedTicks));
+            httpResponse.Write(string.Format("{0} result {1}", data.PartitionKey, new TimeSpan(data.ElapsedTicks)));
         }
 
         #region Implementation of IHttpHandler

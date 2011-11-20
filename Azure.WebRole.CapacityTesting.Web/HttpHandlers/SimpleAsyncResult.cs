@@ -10,7 +10,7 @@ namespace Azure.WebRole.CapacityTesting.HttpHandlers
     public class SimpleAsyncResult<T> : IAsyncResult
     {
         /// <summary>
-        /// Backing field for the <see cref="IAsyncResult.AsyncState"/> property.
+        /// Backing field for the <see cref="AsyncState"/> property.
         /// </summary>
         private readonly object _asyncState;
 
