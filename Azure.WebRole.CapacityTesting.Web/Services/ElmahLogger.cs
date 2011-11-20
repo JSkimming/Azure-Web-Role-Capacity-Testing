@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Web;
 using Elmah;
 
 namespace Azure.WebRole.CapacityTesting.Services
@@ -15,9 +16,16 @@ namespace Azure.WebRole.CapacityTesting.Services
 
             try
             {
-                ErrorSignal
-                    .FromCurrentContext()
-                    .Raise(error);
+                if (HttpContext.Current != null)
+                {
+                    ErrorSignal
+                        .FromCurrentContext()
+                        .Raise(error);
+                }
+                else
+                {
+                    ErrorLog.GetDefault(null).Log(new Error(error));
+                }
             }
             catch (Exception loggerException)
             {

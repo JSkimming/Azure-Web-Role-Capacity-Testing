@@ -13,17 +13,8 @@ namespace Azure.WebRole.CapacityTesting.Services
 {
     class TableStorageWriterService : ITableStorageWriterService
     {
-        private readonly ILogger _logger;
-
         private const string TableName = "CapacityTesting";
         private const string StorageAccountSetting = "StorageAccount";
-
-        public TableStorageWriterService(ILogger logger)
-        {
-            if (logger == null) throw new ArgumentNullException("logger");
-
-            _logger = logger;
-        }
 
         private static CloudTableClient GetCloudTableClient()
         {
@@ -75,9 +66,7 @@ namespace Azure.WebRole.CapacityTesting.Services
             }
             catch(Exception ex)
             {
-                var outerEx = new Exception(string.Format("An error occurred synchronously saving the data '{0}'.", dataGuid), ex);
-                _logger.LogException(outerEx);
-                throw outerEx;
+                throw new Exception(string.Format("An error occurred synchronously saving the data '{0}'.", dataGuid), ex);
             }
         }
 
@@ -93,7 +82,7 @@ namespace Azure.WebRole.CapacityTesting.Services
                 var data =
                     new CapacityTestData
                     {
-                        PartitionKey = "Asynchronous",
+                        PartitionKey = "Asynchronous CTP",
                         RowKey       = dataGuid.ToString().ToUpper(),
                         RequestStart = DateTime.UtcNow,
                     };
@@ -117,9 +106,7 @@ namespace Azure.WebRole.CapacityTesting.Services
             }
             catch (Exception ex)
             {
-                var outerEx = new Exception(string.Format("An error occurred asynchronously (CTP) saving the data '{0}'.", dataGuid), ex);
-                _logger.LogException(outerEx);
-                throw outerEx;
+                throw new Exception(string.Format("An error occurred asynchronously (CTP) saving the data '{0}'.", dataGuid), ex);
             }
         }
 
@@ -132,7 +119,7 @@ namespace Azure.WebRole.CapacityTesting.Services
             var data =
                 new CapacityTestData
                 {
-                    PartitionKey = "Asynchronous",
+                    PartitionKey = "Asynchronous TPL",
                     RowKey       = dataGuid.ToString().ToUpper(),
                     RequestStart = DateTime.UtcNow,
                 };
@@ -147,8 +134,7 @@ namespace Azure.WebRole.CapacityTesting.Services
                 {
                     if(task1.Exception != null)
                     {
-                        var outerEx = new Exception(string.Format("An error occurred asynchronously (TPL) saving the data '{0}'.", dataGuid), task1.Exception);
-                        _logger.LogException(outerEx);
+                        var outerEx = new Exception(string.Format("An error occurred asynchronously (TPL) saving the data '{0}'.", dataGuid), task1.Exception.InnerException);
 
                         tcs.SetException(outerEx);
                         return;
@@ -161,8 +147,7 @@ namespace Azure.WebRole.CapacityTesting.Services
                         {
                             if (task2.Exception != null)
                             {
-                                var outerEx = new Exception(string.Format("An error occurred asynchronously (TPL) saving the data '{0}'.", dataGuid), task2.Exception);
-                                _logger.LogException(outerEx);
+                                var outerEx = new Exception(string.Format("An error occurred asynchronously (TPL) saving the data '{0}'.", dataGuid), task2.Exception.InnerException);
 
                                 tcs.SetException(outerEx);
                                 return;
@@ -180,8 +165,7 @@ namespace Azure.WebRole.CapacityTesting.Services
                                 {
                                     if (task3.Exception != null)
                                     {
-                                        var outerEx = new Exception(string.Format("An error occurred asynchronously (TPL) saving the data '{0}'.", dataGuid), task3.Exception);
-                                        _logger.LogException(outerEx);
+                                        var outerEx = new Exception(string.Format("An error occurred asynchronously (TPL) saving the data '{0}'.", dataGuid), task3.Exception.InnerException);
 
                                         tcs.SetException(outerEx);
                                         return;
