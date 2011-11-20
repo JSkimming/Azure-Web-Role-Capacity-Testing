@@ -11,10 +11,19 @@ using Microsoft.WindowsAzure.StorageClient;
 
 namespace Azure.WebRole.CapacityTesting.Services
 {
-    public class TableStorageWriterService : ITableStorageWriterService
+    class TableStorageWriterService : ITableStorageWriterService
     {
+        private readonly ILogger _logger;
+
         private const string TableName = "CapacityTesting";
         private const string StorageAccountSetting = "StorageAccount";
+
+        public TableStorageWriterService(ILogger logger)
+        {
+            if (logger == null) throw new ArgumentNullException("logger");
+
+            _logger = logger;
+        }
 
         private static CloudTableClient GetCloudTableClient()
         {
@@ -32,68 +41,91 @@ namespace Azure.WebRole.CapacityTesting.Services
 
         CapacityTestData ITableStorageWriterService.WriteToStorage()
         {
-            var sw = new Stopwatch();
-            sw.Start();
+            var dataGuid = Guid.NewGuid();
 
-            var data =
-                new CapacityTestData
-                {
-                    PartitionKey = "Synchronous",
-                    RowKey = Guid.NewGuid().ToString().ToUpper(),
-                    RequestStart = DateTime.UtcNow,
-                };
+            try
+            {
+                var sw = new Stopwatch();
+                sw.Start();
 
-            CloudTableClient cloudTableClient = GetCloudTableClient();
-            cloudTableClient.CreateTableIfNotExist(TableName);
+                var data =
+                    new CapacityTestData
+                        {
+                            PartitionKey = "Synchronous",
+                            RowKey       = dataGuid.ToString().ToUpper(),
+                            RequestStart = DateTime.UtcNow,
+                        };
 
-            TableServiceContext context = cloudTableClient.GetDataServiceContext();
+                CloudTableClient cloudTableClient = GetCloudTableClient();
+                cloudTableClient.CreateTableIfNotExist(TableName);
 
-            context.AddObject(TableName, data);
-            DataServiceResponse response1 = context.SaveChangesWithRetries();
+                TableServiceContext context = cloudTableClient.GetDataServiceContext();
 
-            sw.Stop();
-            data.ElapsedTicks = sw.ElapsedTicks;
-            data.RequestEnd = data.RequestStart + new TimeSpan(data.ElapsedTicks);
+                context.AddObject(TableName, data);
+                DataServiceResponse response1 = context.SaveChangesWithRetries();
 
-            context.UpdateObject(data);
-            DataServiceResponse response2 = context.SaveChangesWithRetries();
+                sw.Stop();
+                data.ElapsedTicks = sw.ElapsedTicks;
+                data.RequestEnd = data.RequestStart + new TimeSpan(data.ElapsedTicks);
 
-            return data;
+                context.UpdateObject(data);
+                DataServiceResponse response2 = context.SaveChangesWithRetries();
+
+                return data;
+            }
+            catch(Exception ex)
+            {
+                var outerEx = new Exception(string.Format("An error occurred synchronously saving the data '{0}'.", dataGuid), ex);
+                _logger.LogException(outerEx);
+                throw outerEx;
+            }
         }
 
         async Task<CapacityTestData> ITableStorageWriterService.WriteToStorageAsyncCtp()
         {
-            var sw = new Stopwatch();
-            sw.Start();
+            var dataGuid = Guid.NewGuid();
 
-            var data =
-                new CapacityTestData
-                {
-                    PartitionKey = "Asynchronous",
-                    RowKey = Guid.NewGuid().ToString().ToUpper(),
-                    RequestStart = DateTime.UtcNow,
-                };
+            try
+            {
+                var sw = new Stopwatch();
+                sw.Start();
 
-            CloudTableClient cloudTableClient = GetCloudTableClient();
-            await cloudTableClient.CreateTableIfNotExistAsync(TableName);
+                var data =
+                    new CapacityTestData
+                    {
+                        PartitionKey = "Asynchronous",
+                        RowKey       = dataGuid.ToString().ToUpper(),
+                        RequestStart = DateTime.UtcNow,
+                    };
 
-            TableServiceContext context = cloudTableClient.GetDataServiceContext();
+                CloudTableClient cloudTableClient = GetCloudTableClient();
+                await cloudTableClient.CreateTableIfNotExistAsync(TableName);
 
-            context.AddObject(TableName, data);
-            DataServiceResponse response1 = await context.SaveChangesWithRetriesAsync();
+                TableServiceContext context = cloudTableClient.GetDataServiceContext();
 
-            sw.Stop();
-            data.ElapsedTicks = sw.ElapsedTicks;
-            data.RequestEnd = data.RequestStart + new TimeSpan(data.ElapsedTicks);
+                context.AddObject(TableName, data);
+                DataServiceResponse response1 = await context.SaveChangesWithRetriesAsync();
 
-            context.UpdateObject(data);
-            DataServiceResponse response2 = await context.SaveChangesWithRetriesAsync();
+                sw.Stop();
+                data.ElapsedTicks = sw.ElapsedTicks;
+                data.RequestEnd = data.RequestStart + new TimeSpan(data.ElapsedTicks);
 
-            return data;
+                context.UpdateObject(data);
+                DataServiceResponse response2 = await context.SaveChangesWithRetriesAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                var outerEx = new Exception(string.Format("An error occurred asynchronously (CTP) saving the data '{0}'.", dataGuid), ex);
+                _logger.LogException(outerEx);
+                throw outerEx;
+            }
         }
 
         Task<CapacityTestData> ITableStorageWriterService.WriteToStorageAsyncTpl()
         {
+            var dataGuid = Guid.NewGuid();
             var sw = new Stopwatch();
             sw.Start();
 
@@ -101,7 +133,7 @@ namespace Azure.WebRole.CapacityTesting.Services
                 new CapacityTestData
                 {
                     PartitionKey = "Asynchronous",
-                    RowKey = Guid.NewGuid().ToString().ToUpper(),
+                    RowKey       = dataGuid.ToString().ToUpper(),
                     RequestStart = DateTime.UtcNow,
                 };
 
@@ -115,7 +147,10 @@ namespace Azure.WebRole.CapacityTesting.Services
                 {
                     if(task1.Exception != null)
                     {
-                        tcs.SetException(task1.Exception);
+                        var outerEx = new Exception(string.Format("An error occurred asynchronously (TPL) saving the data '{0}'.", dataGuid), task1.Exception);
+                        _logger.LogException(outerEx);
+
+                        tcs.SetException(outerEx);
                         return;
                     }
 
@@ -124,9 +159,12 @@ namespace Azure.WebRole.CapacityTesting.Services
                     context.SaveChangesWithRetriesAsync()
                         .ContinueWith(task2 =>
                         {
-                            if (task1.Exception != null)
+                            if (task2.Exception != null)
                             {
-                                tcs.SetException(task1.Exception);
+                                var outerEx = new Exception(string.Format("An error occurred asynchronously (TPL) saving the data '{0}'.", dataGuid), task2.Exception);
+                                _logger.LogException(outerEx);
+
+                                tcs.SetException(outerEx);
                                 return;
                             }
 
@@ -140,9 +178,12 @@ namespace Azure.WebRole.CapacityTesting.Services
                                 .SaveChangesWithRetriesAsync()
                                 .ContinueWith(task3 =>
                                 {
-                                    if(task1.Exception != null)
+                                    if (task3.Exception != null)
                                     {
-                                        tcs.SetException(task1.Exception);
+                                        var outerEx = new Exception(string.Format("An error occurred asynchronously (TPL) saving the data '{0}'.", dataGuid), task3.Exception);
+                                        _logger.LogException(outerEx);
+
+                                        tcs.SetException(outerEx);
                                         return;
                                     }
 

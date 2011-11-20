@@ -59,6 +59,10 @@ namespace Azure.WebRole.CapacityTesting.App_Start
                 .To<CoreControllerActionInvoker>()
                 .InRequestScope();
 
+            kernel.Bind<ILogger>()
+                .To<ElmahLogger>()
+                .InSingletonScope();
+
             kernel.Bind<ITableStorageWriterService>()
                 .To<TableStorageWriterService>()
                 .InSingletonScope();

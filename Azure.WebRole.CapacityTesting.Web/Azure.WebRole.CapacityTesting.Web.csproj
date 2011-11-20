@@ -39,6 +39,9 @@
     <Reference Include="AsyncCtpLibrary">
       <HintPath>..\packages\AsyncAwaitCTP.1.0\lib\net40\AsyncCtpLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="Elmah">
+      <HintPath>..\packages\elmah.corelibrary.1.2\lib\Elmah.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
@@ -120,6 +123,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Services\ElmahLogger.cs" />
+    <Compile Include="Services\ILogger.cs" />
     <Compile Include="Services\ITableStorageWriterService.cs" />
     <Compile Include="Services\TableStorageWriterService.cs" />
     <Compile Include="WebRole.cs" />
@@ -181,6 +186,7 @@
     <Content Include="Content\themes\base\minified\jquery.ui.slider.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
+    <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\jquery-1.7-vsdoc.js" />

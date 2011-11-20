@@ -33,6 +33,7 @@ _ReSharper.*/
 # Log files
 *.svclog
 *.log
+App_Data/
 
 
 # Misc files
