@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace Azure.WebRole.CapacityTesting
 {
@@ -31,6 +33,16 @@ namespace Azure.WebRole.CapacityTesting
 
         protected void Application_Start()
         {
+            // If the instance us runing in Azure, then use the configuration setting.
+            if (RoleEnvironment.IsAvailable)
+            {
+                CloudStorageAccount.SetConfigurationSettingPublisher((configName, configSettingPublisher) =>
+                {
+                    var connectionString = RoleEnvironment.GetConfigurationSettingValue(configName);
+                    configSettingPublisher(connectionString);
+                });
+            }
+
             AreaRegistration.RegisterAllAreas();
 
             RegisterGlobalFilters(GlobalFilters.Filters);
