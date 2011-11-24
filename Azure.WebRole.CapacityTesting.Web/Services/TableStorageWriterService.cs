@@ -56,8 +56,8 @@ namespace Azure.WebRole.CapacityTesting.Services
                 DataServiceResponse response1 = context.SaveChangesWithRetries();
 
                 sw.Stop();
-                data.ElapsedTicks = sw.ElapsedTicks;
-                data.RequestEnd = data.RequestStart + new TimeSpan(data.ElapsedTicks);
+                data.ElapsedMilliseconds = sw.ElapsedMilliseconds;
+                data.RequestEnd = data.RequestStart + TimeSpan.FromMilliseconds(data.ElapsedMilliseconds);
 
                 context.UpdateObject(data);
                 DataServiceResponse response2 = context.SaveChangesWithRetries();
@@ -96,8 +96,8 @@ namespace Azure.WebRole.CapacityTesting.Services
                 DataServiceResponse response1 = await context.SaveChangesWithRetriesAsync();
 
                 sw.Stop();
-                data.ElapsedTicks = sw.ElapsedTicks;
-                data.RequestEnd = data.RequestStart + new TimeSpan(data.ElapsedTicks);
+                data.ElapsedMilliseconds = sw.ElapsedMilliseconds;
+                data.RequestEnd = data.RequestStart + TimeSpan.FromMilliseconds(data.ElapsedMilliseconds);
 
                 context.UpdateObject(data);
                 DataServiceResponse response2 = await context.SaveChangesWithRetriesAsync();
@@ -154,8 +154,8 @@ namespace Azure.WebRole.CapacityTesting.Services
                             }
 
                             sw.Stop();
-                            data.ElapsedTicks = sw.ElapsedTicks;
-                            data.RequestEnd   = data.RequestStart + new TimeSpan(data.ElapsedTicks);
+                            data.ElapsedMilliseconds = sw.ElapsedMilliseconds;
+                            data.RequestEnd = data.RequestStart + TimeSpan.FromMilliseconds(data.ElapsedMilliseconds);
 
                             context.UpdateObject(data);
 

@@ -7,6 +7,6 @@ namespace Azure.WebRole.CapacityTesting.Models
     {
         public DateTime RequestStart { get; set; }
         public DateTime? RequestEnd { get; set; }
-        public long ElapsedTicks { get; set; }
+        public long ElapsedMilliseconds { get; set; }
     }
 }

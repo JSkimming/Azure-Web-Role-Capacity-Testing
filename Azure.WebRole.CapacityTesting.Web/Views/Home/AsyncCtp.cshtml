@@ -11,6 +11,6 @@
         <title>Async CTP result</title>
     </head>
     <body>
-        <div>Async CTP result @Model.ElapsedTicks</div>
+        <div>@Model.PartitionKey result @TimeSpan.FromMilliseconds(Model.ElapsedMilliseconds)</div>
     </body>
 </html>
